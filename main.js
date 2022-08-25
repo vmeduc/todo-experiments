@@ -5,23 +5,21 @@ const text = document.querySelector("input[type=text]");
 const list = document.querySelector("ul");
 
 const initialState = { todos: [] };
-const {
-  getters: stateGetters,
-  actions: stateActions,
-  subscribe,
-} = createStore(initialState);
+const store = createStore(initialState);
 
-window.store = { stateGetters, stateActions };
+window.store = store;
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-  stateActions.addTodo(text.value);
+  store.actions.addTodo(text.value);
   text.value = "";
 });
 
-function renderTodoList(todoList) {
+function renderTodoList(storeGetters) {
   clean();
-  todoList.forEach((todoItem) => list.append(createTodoItem(todoItem)));
+  storeGetters
+    .todos()
+    .forEach((todoItem) => list.append(createTodoItem(todoItem)));
 
   function clean() {
     let child = list.firstChild;
@@ -41,10 +39,10 @@ function createTodoItem(todoItem) {
   const todoDeleteButton = document.createElement("button");
   todoDeleteButton.append("Delete");
   todoDeleteButton.addEventListener("click", (event) => {
-    stateActions.removeTodo(todoItem.id);
+    store.actions.removeTodo(todoItem.id);
   });
   todoElement.append(todoCheckbox, " ", todoItem.text, " ", todoDeleteButton);
   return todoElement;
 }
 
-subscribe(renderTodoList, stateGetters.todos);
+store.subscribe(renderTodoList);
