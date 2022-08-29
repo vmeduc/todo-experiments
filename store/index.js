@@ -1,14 +1,20 @@
-import { createStore } from "redux";
-import { initStateAction } from "./actions";
+import { createStore, applyMiddleware, compose } from "redux";
+import thunk from "redux-thunk";
+
+import { fetchTodosThuncAction } from "./actions";
 import reducer from "./reducer";
+
+const initialState = { todos: [] };
 
 const store = createStore(
   reducer,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  initialState,
+  compose(
+    applyMiddleware(thunk),
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  )
 );
 
-const initialState = { todos: [{ id: 1, text: "Learn Redux", checked: true }] };
-
-store.dispatch(initStateAction(initialState));
+store.dispatch(fetchTodosThuncAction());
 
 export default store;

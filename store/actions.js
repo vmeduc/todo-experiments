@@ -11,6 +11,22 @@ export function initStateAction(initialState) {
   };
 }
 
+export function fetchTodosThuncAction() {
+  return async function (dispatch) {
+    const response = await fetch(
+      "https://jsonplaceholder.typicode.com/todos?_limit=5"
+    );
+    const data = await response.json();
+    const todos = data.map((item) => ({
+      id: item.id,
+      text: item.title,
+      checked: item.completed,
+    }));
+
+    dispatch(initStateAction({ todos: todos }));
+  };
+}
+
 export function addTodoAction(todo) {
   return {
     type: ADD_TODO,
