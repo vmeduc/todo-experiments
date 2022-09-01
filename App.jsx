@@ -1,8 +1,18 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux/es/exports";
+import { fetchTodosThunkAction } from "./store";
 
 export default function App() {
-  const [todos, setTodos] = useState([]);
   const [text, setText] = useState("");
+
+  const todos = useSelector((state) => state.todos);
+  const loading = useSelector((state) => state.app.loading);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchTodosThunkAction());
+  }, []);
 
   return (
     <>
@@ -10,50 +20,49 @@ export default function App() {
         <h2>TODO</h2>
       </header>
       <main>
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            dispatch({ type: "todos/add", payload: text });
+            setText("");
+          }}
+        >
           <label>Write your todo</label>
           <input
             type="text"
             autoFocus
             value={text}
-            onChange={(event) => setText(event.target.value)}
+            onChange={(e) => setText(e.target.value)}
           />
         </form>
-        <ul>
-          {todos.map((todo) => (
-            <li key={todo.id}>
-              <input
-                type="checkbox"
-                checked={todo.checked}
-                onClick={handleToggle.bind(this, todo.id)}
-              />
-              {todo.text}
-              <button onClick={handleDelete.bind(this, todo.id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
+
+        {loading ? (
+          <h3>Loading...</h3>
+        ) : (
+          <ul>
+            {todos.map((todo) => (
+              <li key={todo.id}>
+                <input
+                  type="checkbox"
+                  checked={todo.checked}
+                  onChange={() => {
+                    dispatch({ type: "todos/toggle", payload: todo.id });
+                  }}
+                />
+                {todo.text}
+                <button
+                  onClick={() => {
+                    dispatch({ type: "todos/delete", payload: todo.id });
+                  }}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </main>
       <footer>\ (•◡•) /</footer>
     </>
   );
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    const newTodo = { id: Date.now(), text: text, checked: false };
-    setTodos([...todos, newTodo]);
-    setText("");
-  }
-
-  function handleDelete(todoId) {
-    setTodos(todos.filter((todo) => todo.id != todoId));
-  }
-
-  function handleToggle(todoId) {
-    setTodos(
-      todos.map((todo) => {
-        if (todo.id == todoId) todo.checked = !todo.checked;
-        return todo;
-      })
-    );
-  }
 }
