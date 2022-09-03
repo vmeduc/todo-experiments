@@ -1,16 +1,23 @@
-import { applyMiddleware, createStore } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
 import thunk from "redux-thunk";
 
-import rootReducer from "./rootReducer";
+import appReducer, { setLoading } from "./appSlice";
+import todosReducer, { addTodo } from "./todosSlice";
 import myLogger from "./myLogger";
 
-const store = createStore(rootReducer, applyMiddleware(myLogger, thunk));
+const store = configureStore({
+  reducer: {
+    todos: todosReducer,
+    app: appReducer,
+  },
+  middleware: [myLogger, thunk],
+});
 
 export default store;
 
 export function fetchTodosThunkAction() {
   return async function (dispatch) {
-    dispatch({ type: "app/setLoading", payload: true });
+    dispatch(setLoading(true));
     const response = await fetch(
       "https://jsonplaceholder.typicode.com/todos?_limit=5"
     );
@@ -19,11 +26,8 @@ export function fetchTodosThunkAction() {
     while (responseJson.length) {
       const item = responseJson.shift();
       await new Promise((resolve) => setTimeout(resolve, 500));
-      dispatch({
-        type: "todos/add",
-        payload: item.title,
-      });
+      dispatch(addTodo(item.title));
     }
-    dispatch({ type: "app/setLoading", payload: false });
+    dispatch(setLoading(false));
   };
 }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux/es/exports";
+import { useDispatch, useSelector } from "react-redux";
+import { addTodo, deleteTodo, toggleTodo } from "./store/todosSlice";
 import { fetchTodosThunkAction } from "./store";
 
 export default function App() {
@@ -23,7 +24,7 @@ export default function App() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            dispatch({ type: "todos/add", payload: text });
+            dispatch(addTodo(text));
             setText("");
           }}
         >
@@ -46,13 +47,13 @@ export default function App() {
                   type="checkbox"
                   checked={todo.checked}
                   onChange={() => {
-                    dispatch({ type: "todos/toggle", payload: todo.id });
+                    dispatch(toggleTodo(todo.id));
                   }}
                 />
                 {todo.text}
                 <button
                   onClick={() => {
-                    dispatch({ type: "todos/delete", payload: todo.id });
+                    dispatch(deleteTodo(todo.id));
                   }}
                 >
                   Delete
