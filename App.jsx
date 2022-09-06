@@ -1,15 +1,16 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addTodo, deleteTodo, toggleTodo } from "./store/todosSlice";
+import { useGetLimitTodosQuery } from "./store/todosApi";
 import { fetchTodosThunkAction } from "./store";
 
 export default function App() {
   const [text, setText] = useState("");
-
   const todos = useSelector((state) => state.todos);
-  const loading = useSelector((state) => state.app.loading);
+  const todosIsLoading = useSelector((state) => state.app.loading);
   const dispatch = useDispatch();
+
+  const { data, error, isLoading } = useGetLimitTodosQuery("5");
 
   useEffect(() => {
     dispatch(fetchTodosThunkAction());
@@ -37,8 +38,8 @@ export default function App() {
           />
         </form>
 
-        {loading ? (
-          <h3>Loading...</h3>
+        {todosIsLoading ? (
+          <h3>Loading... Thunk Action</h3>
         ) : (
           <ul>
             {todos.map((todo) => (
@@ -59,6 +60,15 @@ export default function App() {
                   Delete
                 </button>
               </li>
+            ))}
+          </ul>
+        )}
+        {isLoading ? (
+          <h3>Loading... RTK QueryApi</h3>
+        ) : (
+          <ul>
+            {data.map((todo) => (
+              <li key={"shit".concat(todo.id)}>{todo.text}</li>
             ))}
           </ul>
         )}
